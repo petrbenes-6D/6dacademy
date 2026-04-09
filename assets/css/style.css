@@ -61,31 +61,77 @@ nav {
 
 #hero {
   min-height: 100vh;
-  padding: calc(var(--nav-h) + 80px) 5% 80px;
-  display: flex; align-items: center;
-  position: relative; overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 }
 
-.hero-bg {
-  position: absolute; top: 0; right: 0;
-  width: 55%; height: 100%;
-  background: linear-gradient(160deg, #f0f7ff 0%, #e8f7f5 50%, #f0fce8 100%);
-  clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 0% 100%);
+.hero-bg-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 0;
 }
 
-.hero-content { position: relative; max-width: 580px; }
-
-.hero-tag {
-  display: inline-block;
-  background: var(--lime); color: var(--dark);
-  font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-  padding: 6px 14px; border-radius: 4px; margin-bottom: 28px;
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(79,129,198,0.5) 40%, rgba(72,176,170,0.7) 100%);
+  z-index: 1;
 }
 
-.hero-title { font-size: clamp(36px, 5vw, 58px); font-weight: 300; line-height: 1.15; color: var(--dark); margin-bottom: 24px; }
-.hero-title strong { font-weight: 700; color: var(--teal); }
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: 6%;
+  padding: calc(var(--nav-h) + 60px) 0 60px;
+  color: white;
+}
 
-.hero-sub { font-size: 18px; color: #555; margin-bottom: 40px; max-width: 480px; }
+.hero-title {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 300;
+  line-height: 1.2;
+  color: white;
+  margin-bottom: 24px;
+}
+
+.hero-title strong { font-weight: 700; color: var(--lime); }
+
+.hero-sub {
+  font-size: 17px;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+
+.hero-sub2 {
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 700;
+  color: var(--lime);
+  margin-bottom: 40px;
+}
+
+.btn-outline-white {
+  border: 2px solid white;
+  color: white;
+  background: transparent;
+}
+
+.btn-outline-white:hover {
+  background: white;
+  color: var(--dark);
+}
+
+.nav-logo-img {
+  height: 44px;
+  display: block;
+}
 
 .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; }
 
