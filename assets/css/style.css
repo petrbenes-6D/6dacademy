@@ -178,6 +178,10 @@ footer a:hover { color: var(--teal); }
 .hero-sub { animation-delay: 0.35s; }
 .hero-cta { animation-delay: 0.5s; }
 
+.hero-logo { height: 60px; margin-bottom: 24px; display: block; }
+.hero-photo { position: absolute; right: 5%; bottom: 0; height: 85%; display: flex; align-items: flex-end; }
+.hero-photo img { height: 100%; object-fit: contain; object-position: bottom; }
+
 @media (max-width: 768px) {
   .nav-links { display: none; }
   .hamburger { display: flex; }
@@ -187,4 +191,5 @@ footer a:hover { color: var(--teal); }
   .contact-grid { grid-template-columns: 1fr; gap: 48px; }
   .program-card { grid-template-columns: 1fr; }
   .program-meta { text-align: left; }
+  .hero-photo { display: none; }
 }
