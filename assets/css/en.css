@@ -51,6 +51,8 @@
   letter-spacing: 0.3px;
 }
 
+.nowrap { white-space: nowrap; }
+
 @media (max-width: 768px) {
   .en-about-grid { grid-template-columns: 1fr; gap: 32px; }
 }
