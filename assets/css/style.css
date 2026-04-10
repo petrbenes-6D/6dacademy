@@ -278,6 +278,27 @@ footer a:hover { color: var(--teal); }
 .gallery-grid img { width: 100%; height: 240px; object-fit: cover; border-radius: 6px; transition: transform 0.2s; cursor: pointer; }
 .gallery-grid img:hover { transform: scale(1.02); }
 
+.d6-card--photo {
+  padding: 0;
+  overflow: hidden;
+}
+.d6-card--photo img {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  object-fit: cover;
+}
+.service-card--photo {
+  padding: 0;
+  overflow: hidden;
+}
+.service-card--photo img {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  object-fit: cover;
+}
+
 .d6-card--image {
   padding: 0;
   overflow: hidden;
