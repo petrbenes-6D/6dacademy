@@ -133,7 +133,9 @@ nav {
   display: block;
 }
 
-.hero-cta { display: flex; gap: 16px; flex-wrap: wrap; }
+.hero-cta { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+.hero-cta .btn { min-width: 160px; text-align: center; }
+.hero-signature { height: 48px; opacity: 0.9; margin-left: 8px; }
 
 .btn { display: inline-block; padding: 14px 30px; border-radius: 6px; text-decoration: none; font-size: 15px; font-weight: 700; transition: all 0.2s; cursor: pointer; border: none; }
 .btn-primary { background: var(--teal); color: white; }
