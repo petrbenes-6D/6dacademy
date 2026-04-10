@@ -164,7 +164,22 @@ section { padding: 96px 5%; }
 .d6-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
 .d6-card p { color: #555; font-size: 15px; line-height: 1.6; }
 
+.gradient-dark {
+  background: linear-gradient(135deg, #4f81c6 0%, #48b0aa 50%, #72c369 100%);
+}
+
 #sluzby { background: linear-gradient(135deg, #f0f7ff 0%, #e8f7f5 100%); }
+
+#sluzby.gradient-dark .section-label { color: #ceee28; }
+#sluzby.gradient-dark .section-title { color: white; }
+#sluzby.gradient-dark .service-card { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); color: white; }
+#sluzby.gradient-dark .service-card h3 { color: white; }
+#sluzby.gradient-dark .service-card p { color: rgba(255,255,255,0.85); }
+#podcasts.gradient-dark .section-label { color: #ceee28; }
+#podcasts.gradient-dark .section-title { color: white; }
+#podcasts.gradient-dark .podcast-info h3 { color: white; }
+#podcasts.gradient-dark .podcast-info p { color: rgba(255,255,255,0.85); }
+#podcasts.gradient-dark .link-teal { color: #ceee28; }
 .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
 .service-card { border: 1px solid #eee; border-radius: 8px; padding: 32px 28px; transition: all 0.2s; }
 .service-card:hover { border-color: var(--teal); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(72,176,170,0.12); }
