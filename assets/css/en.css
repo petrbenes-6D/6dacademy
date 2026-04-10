@@ -1,0 +1,56 @@
+#en-hero {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.en-about-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.en-about-photo {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.en-about-photo img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  object-position: top;
+}
+
+.en-about-text p {
+  color: #555;
+  font-size: 17px;
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+
+.en-about-text strong { color: var(--dark); }
+
+.en-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.en-tags span {
+  background: var(--gray);
+  color: var(--dark);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 768px) {
+  .en-about-grid { grid-template-columns: 1fr; gap: 32px; }
+}
