@@ -289,7 +289,10 @@
       </div>
     </div>
     <div>
-      <form class="contact-form" onsubmit="handleSubmit(event)">
+      <form class="contact-form" action="https://formspree.io/f/xaqlgbqd" method="POST">
+        <input type="hidden" name="_subject" value="Nová zpráva z 6dacademy.com" />
+        <input type="hidden" name="_language" value="cs" />
+        <input type="text" name="_gotcha" style="display:none" />
         <input type="text" placeholder="Vaše jméno" required />
         <input type="email" placeholder="E-mail" required />
         <input type="text" placeholder="Téma" />
