@@ -4,17 +4,17 @@
 let D=null,ver=null,base='';
 async function load(){if(gate())return;if(!base)base=await joinBase();const j=await bx('/admin/runs',{k:ADMIN,since:ver});if(j.__code===401){badKey();return}if(j.unchanged||j.error)return;ver=j.ver;D=j;render()}
 const ST={locked:'čeká',open:'běží',closed:'uzavřeno',evaluated:'vyhodnoceno',published:'na burze'};
-function render(){const a=document.activeElement;if(a&&a.id==='nm'&&a.value)return;
+function render(){const a=document.activeElement;if(a&&(a.id==='nm'||a.id==='rc')&&a.value)return;
  const k='&key='+encodeURIComponent(ADMIN);
  $('#app').innerHTML=`<div class="top"><b>BeZak Exchange</b><span class="muted small">Řídicí centrum</span><span class="sp"></span><div style="display:flex;align-items:center;gap:12px"><div style="text-align:right"><div class="muted small">Týmy se hlásí na</div><b style="font-size:13px;letter-spacing:.04em">${esc(shortUrl(base))}</b></div><div style="width:64px;height:64px;background:#fff;border-radius:8px;padding:3px">${qr(base)}</div></div></div>
  <div class="wrap" style="max-width:1300px"><div class="card"><h2>Nový běh hry</h2><p class="muted small">Jeden běh = tři firmy (RED, BLUE, GREY) s vlastní burzou a vlastními přístupovými kódy. Běhů může být víc souběžně.</p>
- <div class="new"><div style="flex:1;min-width:240px"><label>Název běhu</label><input id="nm" placeholder="např. FuHuL 2027, skupina A"></div><button class="btn" onclick="newRun()">Vytvořit běh a přístupové kódy</button></div></div>
+ <div class="new"><div style="flex:1;min-width:200px"><label>Kód běhu (3 až 12 písmen a číslic, týmy ho píšou při přihlášení)</label><input id="rc" placeholder="např. PRAHA27" autocomplete="off" style="text-transform:uppercase"></div><div style="flex:1;min-width:240px"><label>Název běhu</label><input id="nm" placeholder="např. FuHuL 2027, skupina A"></div><button class="btn" onclick="newRun()">Vytvořit běh a přístupové kódy</button></div></div>
  <div class="runs">${D.runs.length?D.runs.map(r=>`<div class="run"><div class="muted small">BĚH</div><h2 style="margin:0">${esc(r.name)}</h2><div class="cd">${esc(r.code)}</div>
  <div class="small muted" style="margin-top:6px">${r.current?`Právě: kolo ${r.current.id} · ${esc(r.current.title)} (${ST[r.current.status]})`:'Zatím nespuštěno'} · zveřejněno kol: ${r.published}</div>
  <div class="mt">${r.teams.map(t=>`<div style="--c:${COL[t.team]}"><b>${esc(t.ticker)}</b><br><span class="small muted">${esc(t.name)}</span><br><b style="color:var(--gold)">${t.bzk.toFixed(2)}</b></div>`).join('')}</div>
  <div class="row"><a class="btn gold" href="hub.html?run=${r.code}${k}">Řídit hru</a><a class="btn alt" href="welcome.html?run=${r.code}" target="_blank">Uvítací obrazovka</a><a class="btn alt" href="board.html?run=${r.code}" target="_blank">Burza</a><a class="btn alt" href="cards.html?run=${r.code}${k}" target="_blank">Přístupové karty</a></div>
  <div class="row"><button class="btn alt" onclick="toggle('${r.code}',${!r.showCodes})">${r.showCodes?'Skrýt kódy na uvítací obrazovce':'Zobrazit kódy na uvítací obrazovce'}</button><button class="btn alt" onclick="del('${r.code}')">Smazat běh</button></div></div>`).join(''):'<div class="card"><p class="muted">Zatím žádný běh. Vytvoř první.</p></div>'}</div></div>`}
-async function newRun(){const r=await bx('/admin/run/new',{k:ADMIN,name:$('#nm').value});if(r.code)location.href='hub.html?run='+r.code+'&key='+encodeURIComponent(ADMIN)}
+async function newRun(){const r=await bx('/admin/run/new',{k:ADMIN,name:$('#nm').value,code:$('#rc').value});if(r.error){alert(r.error);return}if(r.folders&&r.folders!=='ok')alert(r.folders+' Složky vlož ručně v hubu.');if(r.code)location.href='hub.html?run='+r.code+'&key='+encodeURIComponent(ADMIN)}
 async function toggle(c,v){await bx('/admin/run/meta',{k:ADMIN,run:c,showCodes:v});ver=null;load()}
 async function del(c){if(prompt('Napiš DELETE pro smazání běhu '+c+' (záloha se uloží)')==='DELETE'){await bx('/admin/run/delete',{k:ADMIN,run:c,confirm:'DELETE'});ver=null;load()}}
 poll(load,5000);
