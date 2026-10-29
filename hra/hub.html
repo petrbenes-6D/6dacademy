@@ -83,7 +83,7 @@ function render(){
  <p><button class="btn gold" onclick="copySentence()">Zkopírovat větu pro Claude</button> <span class="small ok" id="pm">${esc(msg)}</span></p>
  <p class="small" style="margin:2px 0 10px"><i>Vyhodnoť kolo ${sel} běhu ${esc(RUN)}.</i></p>
  <p><button class="btn" onclick="loadEval()">Načíst hodnocení z Drive</button></p>
- <details style="margin:8px 0"><summary class="small muted" style="cursor:pointer">Ruční postup (záložní)</summary>
+ <details style="margin:8px 0" ${manualOpen?'open':''} ontoggle="manualOpen=this.open"><summary class="small muted" style="cursor:pointer">Ruční postup (záložní)</summary>
  <p><button class="btn alt" onclick="copyPack()">Zkopírovat zadání pro hodnocení</button></p>
  <textarea class="ta" data-keep="1" id="imp" placeholder="Sem vlož JSON od Claude" oninput="impText=this.value">${esc(impText)}</textarea>
  <p><button class="btn alt" onclick="doImport()">Importovat hodnocení</button></p></details>
@@ -104,6 +104,7 @@ async function setLiveAll(team,v){await aapi('/admin/score',{round:sel,team,live
 async function copyPack(){const j=await aapi('/admin/evalpack',{round:sel});if(!j.text){msg='Chyba: '+(j.error||'');render();return}
  try{await navigator.clipboard.writeText(j.text)}catch(e){const t=document.createElement('textarea');t.value=j.text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}
  const e=$('#pm');if(e)e.textContent='Zkopírováno ('+j.text.length+' znaků). Vlož do Claude.';}
+let manualOpen=false;
 async function copySentence(){const t='Vyhodnoť kolo '+sel+' běhu '+RUN+'.';try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove()}const e=$('#pm');if(e)e.textContent='Zkopírováno. Vlož do chatu s Claude.'}
 async function loadEval(){const j=await aapi('/admin/loadeval',{round:sel});if(j.error){alert(j.__code===400?'Tato funkce běží jen na hostingu (Google). Použij ruční postup.':j.error);return}alert('Hodnocení načteno pro: '+(j.teams||[]).join(', '));reload()}
 async function doImport(){const t=($('#imp')||{}).value||impText;if(!t.trim()){alert('Vlož JSON od Claude.');return}const j=await aapi('/admin/import',{round:sel,data:t});if(j.error){alert(j.error);return}impText='';alert('Importováno pro: '+j.teams.join(', '));reload()}
