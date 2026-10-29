@@ -81,7 +81,7 @@ function render(){
  <p><button class="btn alt" onclick="act('close')">2. Uzavřít odevzdání</button></p>
  <h3>3. Hodnocení výstupů</h3><p class="small muted">Po uzavření odevzdání zkopíruj větu a vlož ji do chatu s Claude. Claude přečte složky týmů na Drive a uloží hodnocení. Pak klikni na Načíst.</p>
  <p><button class="btn gold" onclick="copySentence()">Zkopírovat větu pro Claude</button> <span class="small ok" id="pm">${esc(msg)}</span></p>
- <p class="small" style="margin:2px 0 10px"><i>Vyhodnoť kolo ${sel} běhu ${esc(RUN)}.</i></p>
+ <p class="small muted" style="margin:2px 0 10px">Zkopíruje se věta s celým pokynem pro Claude (kolo ${sel}, běh ${esc(RUN)}).</p>
  <p><button class="btn" onclick="loadEval()">Načíst hodnocení z Drive</button></p>
  <details style="margin:8px 0" ${manualOpen?'open':''} ontoggle="manualOpen=this.open"><summary class="small muted" style="cursor:pointer">Ruční postup (záložní)</summary>
  <p><button class="btn alt" onclick="copyPack()">Zkopírovat zadání pro hodnocení</button></p>
@@ -105,7 +105,7 @@ async function copyPack(){const j=await aapi('/admin/evalpack',{round:sel});if(!
  try{await navigator.clipboard.writeText(j.text)}catch(e){const t=document.createElement('textarea');t.value=j.text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}
  const e=$('#pm');if(e)e.textContent='Zkopírováno ('+j.text.length+' znaků). Vlož do Claude.';}
 let manualOpen=false;
-async function copySentence(){const t='Vyhodnoť kolo '+sel+' běhu '+RUN+'.';try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove()}const e=$('#pm');if(e)e.textContent='Zkopírováno. Vlož do chatu s Claude.'}
+async function copySentence(){const t='Vyhodnoť kolo '+sel+' běhu '+RUN+' hry BeZak Exchange. Na Google Drive najdi soubor K'+sel+'_ZADANI_PRO_HODNOCENI.txt (složka běhu '+RUN+' v 05_HRA/UCASTNICKE_ADRESARE), přečti ho a postupuj přesně podle něj: přečti soubory K'+sel+'_ ve složkách týmů, ohodnoť je a výsledek ulož do složky běhu jako K'+sel+'_HODNOCENI.json.';try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove()}const e=$('#pm');if(e)e.textContent='Zkopírováno. Vlož do chatu s Claude.'}
 async function loadEval(){const j=await aapi('/admin/loadeval',{round:sel});if(j.error){alert(j.__code===400?'Tato funkce běží jen na hostingu (Google). Použij ruční postup.':j.error);return}alert('Hodnocení načteno pro: '+(j.teams||[]).join(', '));reload()}
 async function doImport(){const t=($('#imp')||{}).value||impText;if(!t.trim()){alert('Vlož JSON od Claude.');return}const j=await aapi('/admin/import',{round:sel,data:t});if(j.error){alert(j.error);return}impText='';alert('Importováno pro: '+j.teams.join(', '));reload()}
 async function exportRun(){const j=await aapi('/admin/export');const b=new Blob([JSON.stringify(j.run,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bezak-'+RUN+'-export.json';a.click()}
