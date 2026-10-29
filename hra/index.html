@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BeZak Exchange · Aquatech LAB Game</title><link rel="icon" href="logo.png"><link rel="stylesheet" href="style.css"><link href="https://fonts.googleapis.com/css2?family=Jost:wght@500;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet"></head>
+<body><div class="hero" style="padding-top:8vh">
+<div class="plate"><img src="logo.png" alt="Future Human Leader"></div>
+<div class="eyebrow">Future Human Leader</div>
+<h1>BeZak <span>Exchange</span></h1>
+<div class="sub">Aquatech LAB Game &middot; Water Under Pressure</div>
+<div class="card" style="max-width:460px;margin:38px auto 0;text-align:left"><label style="margin-top:0">Your access code</label>
+<input id="c" placeholder="e.g. K7M2-4821" autocomplete="off" autocapitalize="characters" style="font:800 28px Jost,Montserrat,sans-serif;letter-spacing:.14em;text-align:center;text-transform:uppercase">
+<p style="margin-top:14px;text-align:center"><button class="btn" id="go" style="font-size:16px;padding:12px 34px">Enter the exchange</button></p><p id="err" class="bad small" style="text-align:center;min-height:20px"></p></div>
+<p class="small muted" style="margin-top:22px">You receive the access code from your facilitator.</p>
+</div>
+<script src="config.js"></script><script src="common.js"></script>
+<script>
+async function join(){const j=await bx('/join',{code:$('#c').value});if(j.token){try{localStorage.setItem('bx_tok',j.token)}catch{}location.href='team.html'}else $('#err').textContent=j.__code===0?j.error:'This code is not valid. Check it with your facilitator.'}
+$('#go').onclick=join;$('#c').addEventListener('keydown',e=>{if(e.key==='Enter')join()});
+const pre=QS.get('c');if(pre){$('#c').value=pre;join()}
+</script></body></html>

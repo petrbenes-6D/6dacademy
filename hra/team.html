@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BeZak Exchange · Team</title><link rel="icon" href="logo.png"><link rel="stylesheet" href="style.css"><link href="https://fonts.googleapis.com/css2?family=Jost:wght@500;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>.conf{border:2px dashed var(--coral);background:#e0607e14}.conf h3{color:var(--coral)}table.pts{width:100%;border-collapse:collapse;font-size:14px}table.pts th,table.pts td{border-bottom:1px solid #ffffff1c;padding:7px 8px;text-align:left}table.pts td.p{font-weight:800;color:var(--gold);text-align:center}.pr{white-space:pre-wrap;background:#0b0724;border-radius:10px;padding:10px 12px;font-size:12px;max-height:150px;overflow:auto}select.t{width:100%}</style></head>
+<body><div id="app"></div>
+<script src="config.js"></script><script src="common.js"></script>
+<script>
+let st=null,tab='brief',sig='',ver=null,busy=false,draft={option:'',rationale:'',artifact:'',terms:null,cname:null,cticker:null,init:null};
+function login(){location.href='index.html'}
+async function load(){
+ if(!tok())return login();
+ const j=await tapi('/team/state',{since:ver});
+ if(j.__code===401){try{localStorage.removeItem('bx_tok')}catch{}return login()}
+ if(j.error||j.unchanged)return;
+ ver=j.ver;st=j;
+ if(draft.init!==(st.round&&st.round.id)){draft.init=st.round&&st.round.id;draft.option=st.mine?st.mine.decision.option:'';draft.rationale=st.mine?st.mine.decision.rationale:'';draft.artifact=st.mine?st.mine.artifact:'';draft.terms=st.mine&&st.mine.terms?st.mine.terms.slice():null;tab='brief'}
+ const s=JSON.stringify([st.status,st.round&&st.round.id,st.round&&st.round.endsAt,st.board.teams.map(t=>t.bzk),st.name,st.ticker,st.folder,st.mine&&st.mine.submittedAt,st.result]);
+ if(s!==sig){sig=s;render()}}
+function head(){const me=st.board.teams.find(t=>t.team===st.team);return `<div class="top team-${st.team}"><b>${esc(st.name)}</b><span class="pill">${esc(st.ticker)}</span><span class="sp"></span><span class="muted small">BZK</span> <b style="font-size:22px;color:var(--gold)">${me.bzk.toFixed(2)}</b></div>`}
+const stTxt={open:'Round open',closed:'Submissions closed',evaluated:'Being evaluated',published:'Result published'};
+function folderCard(r){return `<div class="card"><h3>Your team folder</h3>${st.folder?`<p><a class="btn alt" style="text-decoration:none;display:inline-block" href="${esc(st.folder)}" target="_blank" rel="noopener">Open your team folder</a></p>`:'<p class="muted">Your facilitator will share the link to your team folder.</p>'}<p class="small muted">Upload your outputs there: HTML, presentation, document, spreadsheet or PDF, one file per output, up to 25 MB. Start each file name with <b>K${r.id}_</b> (for example K${r.id}_${esc(st.team)}_summary.pdf). Use only fictional company data. No real client data and no personal data of real people.</p></div>`}
+function aiCard(){return `<div class="card"><h3>Your AI, your responsibility</h3><p class="small">Use your own AI tools (for example Copilot or Claude). Using AI is mandatory in every round, and <b>how you lead it</b> is part of your score: give it context and constraints, check what it says against the data room, say what you rejected. Keep the prompts you used. The evaluators read them.</p></div>`}
+function render(){
+ if(!st.round){ $('#app').innerHTML=head()+`<div class="wrap"><div class="card"><h2>Waiting for the facilitator</h2><p class="muted">Your next task will appear here as soon as it is released.</p></div></div>`;return}
+ const r=st.round,open=st.status==='open',neg=r.kind==='negotiation';
+ const tabs=[['brief','Brief']];if(neg)tabs.push(['role','Your role']);tabs.push(['avatars','AI roles'],['submit','Submit'],['result','Result']);
+ let h=head()+`<div class="wrap"><div class="pill ${st.status}">${stTxt[st.status]}</div> <span class="muted small">${esc(r.skill)}</span>${r.endsAt&&open?` <span class="timer"><span data-end="${r.endsAt}"></span></span>`:''}
+ <div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="tab='${k}';render()">${l}</button>`).join('')}</div>`;
+ if(tab==='brief'){
+  h+=`<div class="card paper"><h2>The BeZak Morning Herald</h2><div class="hl">${esc(r.newspaper.headline)}</div><p>${esc(r.newspaper.lead)}</p></div>
+  <div class="card"><h3>Round ${r.id}: ${esc(r.title)}</h3><p>${esc(r.brief)}</p>${neg?`<p><b>${esc(r.pairInfo.pair[0].ticker)}</b> and <b>${esc(r.pairInfo.pair[1].ticker)}</b> negotiate. <b>${esc(r.pairInfo.observer.ticker)}</b> observes. Your role: <b>${esc(r.neg.title)}</b>. Open the tab "Your role".</p>`:''}</div>
+  <div class="card"><h3>Your company</h3><div class="grid g2"><div><label>Company name</label><input value="${esc(draft.cname??st.name)}" oninput="draft.cname=this.value"></div><div><label>Stock ticker: exactly 4 letters taken from your company name</label><input maxlength="4" style="text-transform:uppercase" value="${esc(draft.cticker??st.ticker)}" oninput="draft.cticker=this.value"></div></div><p><button class="btn alt" onclick="saveCo()">Save company identity</button></p></div>
+  <div class="card"><h3>Data room</h3>${r.dataRoom.map(d=>`<p><b>${esc(d.title)}.</b> ${esc(d.text)}</p>`).join('')}</div>${aiCard()}${folderCard(r)}`;
+ }
+ if(tab==='role'&&neg){
+  const n=r.neg;
+  if(n.role==='OBS'){
+   h+=`<div class="card conf"><h3>Confidential: ${esc(n.title)}</h3><p>${esc(n.brief)}</p><h3>What to watch</h3><ul>${n.watch.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></div>`;
+  }else{
+   const other=r.pairInfo.pair.find(p=>p.team!==st.team);
+   h+=`<div class="card conf"><h3>Confidential: ${esc(n.title)}, ${esc(n.summary)}</h3><p>You negotiate with <b>${esc(other.name)}</b> (${esc(other.ticker)}). Do not show this page to the other firm.</p><p>${esc(n.brief)}</p></div>
+   <div class="card conf"><h3>Your scoring sheet</h3><p class="small muted">Points you get for each outcome. The other firm has a different sheet. If you reach no agreement, you get the same value as walking away.</p><table class="pts"><tr><th>Issue</th><th>Option 1</th><th>Option 2</th><th>Option 3</th></tr>${n.issues.map(i=>`<tr><td>${esc(i.label)}</td>${i.levels.map(l=>`<td>${esc(l.label)} <span class="muted small">(</span><b style="color:var(--gold)">${l.pts}</b><span class="muted small">)</span></td>`).join('')}</tr>`).join('')}</table></div>`;
+  }
+ }
+ if(tab==='avatars'){
+  h+=`<div class="card"><h3>AI roles</h3><p class="small muted">Copy the prompt and paste it into your own AI tool as the first message. The AI then plays this character and you interview it. Ask good questions; the character answers only what it is asked. Judge what you hear, it is a simulation.</p></div>
+  ${r.avatars.map(a=>`<div class="card"><h3>${esc(a.name)}</h3><div class="pr">${esc(a.prompt)}</div><p><button class="btn alt" onclick="copyP('${a.id}')">Copy prompt</button> <span id="cp_${a.id}" class="small ok"></span></p></div>`).join('')}`;
+ }
+ if(tab==='submit'){
+  const m=st.mine;
+  if(neg&&r.neg.role!=='OBS'){
+   const T=draft.terms||r.neg.issues.map(()=>null);
+   h+=`<div class="card"><h3>Joint agreement</h3><p class="small muted">Both firms must submit <b>identical</b> terms on every issue. If the terms differ, or one firm does not submit, there is no agreement and both get the value of walking away. Agree it with the other firm first, then both of you submit.</p>
+   ${r.neg.issues.map((i,k)=>`<label>${esc(i.label)}</label><select class="t" ${open?'':'disabled'} onchange="setTerm(${k},this.value)"><option value="">Choose...</option>${i.levels.map((l,v)=>`<option value="${v}" ${T[k]===v?'selected':''}>${esc(l.label)}</option>`).join('')}</select>`).join('')}</div>`;
+  }else{
+   draft.rationale=draft.rationale||'';
+   h+=`<div class="card"><h3>${neg?'Your recommendation':'Decision'}</h3><p><b>${esc(r.decision.question)}</b></p>${r.decision.options.map(o=>`<label class="opt ${draft.option===o.id?'on':''}"><input type="radio" name="o" style="width:auto" ${draft.option===o.id?'checked':''} onchange="draft.option='${o.id}';render()"> <b>${o.id}. ${esc(o.label)}</b>${esc(o.desc)}</label>`).join('')}
+   <label>Why? (max 150 words, mention the trade-offs)</label><textarea oninput="draft.rationale=this.value">${esc(draft.rationale)}</textarea></div>`;
+  }
+  h+=`<div class="card"><h3>Required outputs</h3><p>${esc(r.artifact.prompt)}</p><p class="small muted">Upload the files to your team folder, named K${r.id}_...</p></div>${folderCard(r)}
+  <div class="card"><h3>Optional note to the evaluator</h3><p class="small muted">A link to extra material, or a remark about your files (max 500 characters).</p><textarea maxlength="500" oninput="draft.artifact=this.value">${esc(draft.artifact)}</textarea></div>
+  <div class="card"><h3>Live performance</h3><p><b>${esc(r.live.title)}</b><br>${esc(r.live.instructions)}</p></div>
+  ${open?`<p><button class="btn gold" onclick="submitAll()">${m&&m.submittedAt?'Update submission':'Submit'}</button> <span class="small ok">${m&&m.submittedAt?'Last submitted '+new Date(m.submittedAt).toLocaleTimeString():''}</span></p>`:'<p class="muted">Round is closed.</p>'}`;
+ }
+ if(tab==='result'){
+  const x=st.result;h+=x&&x.result?`<div class="card"><h2>${esc(x.headline||'')}</h2><div class="grid g3"><div><div class="muted small">Round score</div><div class="big">${x.result.total}</div></div><div><div class="muted small">Market consequence</div><div class="big ${x.result.consequence>=0?'ok':'bad'}">${x.result.consequence>0?'+':''}${x.result.consequence}%</div></div><div><div class="muted small">BZK</div><div class="big" style="color:var(--gold)">${x.result.after}</div></div></div><p class="muted">Decision ${x.scores.decision}/30 · AI leadership ${x.scores.ai}/20 · Live ${x.scores.live}/50</p>${x.feedback?`<h3>Feedback</h3><p>${esc(x.feedback)}</p>`:''}</div>`:`<div class="card"><p class="muted">Results appear here after the facilitator publishes the round.</p></div>`;
+ }
+ $('#app').innerHTML=h+'</div>';clock()}
+function setTerm(k,v){const n=st.round.neg.issues.length;draft.terms=draft.terms||Array(n).fill(null);draft.terms[k]=v===''?null:+v}
+async function copyP(id){const a=st.round.avatars.find(x=>x.id===id);try{await navigator.clipboard.writeText(a.prompt)}catch(e){const t=document.createElement('textarea');t.value=a.prompt;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}$('#cp_'+id).textContent='Copied';setTimeout(()=>{const e=$('#cp_'+id);if(e)e.textContent=''},1800)}
+async function submitAll(){
+ const r=st.round;let d={artifact:draft.artifact};
+ if(r.kind==='negotiation'&&r.neg.role!=='OBS'){if(!draft.terms||draft.terms.some(v=>v==null)){alert('Choose an option for every issue.');return}d.terms=draft.terms}
+ else{if(!draft.option){alert('Choose an option.');return}d.option=draft.option;d.rationale=draft.rationale}
+ const j=await tapi('/team/submit',d);if(j.error){alert(j.error);return}ver=null;sig='';await load();alert('Submitted.')}
+async function saveCo(){const j=await tapi('/team/company',{name:draft.cname??st.name,ticker:draft.cticker??st.ticker});if(j.error){alert(j.error);return}draft.cname=draft.cticker=null;ver=null;sig='';load()}
+if(!tok())login();else poll(load,6000);
+legend('F celá obrazovka · B burza');
+</script></body></html>
