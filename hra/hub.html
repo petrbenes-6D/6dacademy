@@ -97,7 +97,7 @@ async function saveTeam(t){await aapi('/admin/team',{team:t,name:$('#n_'+t).valu
 async function act(a){if(a==='open'&&Object.entries(A.status).some(([i,s])=>s==='open'&&+i!==sel)&&!confirm('Jiné kolo právě běží. Uzavřít ho a spustit kolo '+sel+'?'))return;await aapi('/admin/round',{round:sel,action:a,minutes:+(($('#mins')||{}).value||0)});reload()}
 async function tm(op,m){await aapi('/admin/timer',{op,minutes:m});reload()}
 async function toggleCodes(){await aapi('/admin/run/meta',{showCodes:!A.showCodes});reload()}
-async function publish(){if(!confirm('Zveřejnit kolo '+sel+' a přepočítat BZK?'))return;await aapi('/admin/publish',{round:sel,scenario:$('#scn').value});reload()}
+async function publish(){if(!confirm('Zveřejnit kolo '+sel+' a přepočítat BZK?'))return;const j=await aapi('/admin/publish',{round:sel,scenario:$('#scn').value});if(j.error){alert('Zveřejnění se nepovedlo: '+j.error);return}alert('Kolo '+sel+' je na burze. Scénář: '+(j.scenario||'')+(j.headline?' ('+j.headline+')':''));reload()}
 async function setScore(team,o){await aapi('/admin/score',Object.assign({round:sel,team},o));reload()}
 async function setLive(team,i,v){const s=(A.subs[sel]||{})[team];const live=(s&&s.live||[null,null,null]).slice();live[i]=v;await aapi('/admin/score',{round:sel,team,live});reload()}
 async function setLiveAll(team,v){await aapi('/admin/score',{round:sel,team,live:[v,v,v]});reload()}
