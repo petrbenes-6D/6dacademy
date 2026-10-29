@@ -16,7 +16,21 @@ async function load(){
  if(s!==sig){sig=s;render()}}
 function head(){const me=st.board.teams.find(t=>t.team===st.team);return `<div class="top team-${st.team}"><b>${esc(st.name)}</b><span class="pill">${esc(st.ticker)}</span><span class="sp"></span><span class="muted small">BZK</span> <b style="font-size:22px;color:var(--gold)">${me.bzk.toFixed(2)}</b></div>`}
 const stTxt={open:'Round open',closed:'Submissions closed',evaluated:'Being evaluated',published:'Result published'};
-function folderCard(r){return `<div class="card"><h3>Your team folder</h3>${st.folder?`<p><a class="btn alt" style="text-decoration:none;display:inline-block" href="${esc(st.folder)}" target="_blank" rel="noopener">Open your team folder</a></p>`:'<p class="muted">Your facilitator will share the link to your team folder.</p>'}<p class="small muted">Upload your outputs there: HTML, presentation, document, spreadsheet or PDF, one file per output, up to 25 MB. Start each file name with <b>K${r.id}_</b> (for example K${r.id}_${esc(st.team)}_summary.pdf). Use only fictional company data. No real client data and no personal data of real people.</p></div>`}
+let UP={files:null,busy:'',msg:'',pct:0};
+function folderCard(r){return `<div class="card"><h3>Upload your outputs</h3><p class="small muted">HTML, presentation, document, spreadsheet or PDF, one file per output, up to 25 MB. Files are renamed to start with <b>K${r.id}_</b> if needed. Use only fictional company data. No real client data and no personal data of real people.</p>${st.status==='open'?`<p><input type="file" id="upf" multiple style="max-width:100%"></p><p><button class="btn" onclick="doUpload()" ${UP.busy?'disabled':''}>Upload selected files</button></p>`:'<p class="muted">Uploads are closed.</p>'}<div id="upm" class="small"></div><div id="upl" class="small"></div></div>`}
+function upShow(){const m=document.getElementById('upm'),l=document.getElementById('upl');if(m)m.innerHTML=UP.busy?`<b>Uploading ${esc(UP.busy)}: ${UP.pct}%</b>`:esc(UP.msg);if(l)l.innerHTML=UP.files?(UP.files.length?'<b>Files in your folder</b><br>'+UP.files.map(f=>esc(f.name)+' <span class="muted">('+(f.size/1048576).toFixed(1)+' MB)</span>').join('<br>'):'<span class="muted">No files uploaded yet.</span>'):''}
+async function upList(){const j=await tapi('/team/files');if(j.files){UP.files=j.files;upShow()}}
+const b64=blob=>new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(String(f.result).split(',')[1]||'');f.onerror=no;f.readAsDataURL(blob)});
+async function doUpload(){const inp=document.getElementById('upf');if(!inp||!inp.files.length||UP.busy)return;const CH=1572864;
+ for(const file of Array.from(inp.files)){
+  if(file.size>25*1048576){UP.msg=file.name+': larger than 25 MB, skipped.';upShow();continue}
+  if(!file.size){UP.msg=file.name+': empty, skipped.';upShow();continue}
+  const uid=Math.random().toString(36).slice(2,12)+Date.now().toString(36),n=Math.ceil(file.size/CH);UP.busy=file.name;UP.pct=0;upShow();let fail='';
+  for(let i=0;i<n&&!fail;i++){const data=await b64(file.slice(i*CH,Math.min(file.size,(i+1)*CH)));let ok=false,j;
+   for(let k=0;k<3&&!ok;k++){j=await tapi('/team/upload',{uid,idx:i,size:file.size,name:file.name,data});ok=!!j.ok;if(!ok&&(j.__code===409||j.__code===413||j.__code===401))break;if(!ok)await new Promise(r=>setTimeout(r,1500))}
+   if(!ok)fail=(j&&j.error)||'upload failed';UP.pct=Math.round((i+1)/n*100);upShow()}
+  UP.busy='';UP.msg=fail?file.name+': '+fail:file.name+': uploaded.';upShow()}
+ inp.value='';upList()}
 function aiCard(){return `<div class="card"><h3>Your AI, your responsibility</h3><p class="small">Use your own AI tools (for example Copilot or Claude). Using AI is mandatory in every round, and <b>how you lead it</b> is part of your score: give it context and constraints, check what it says against the data room, say what you rejected. Keep the prompts you used. The evaluators read them.</p></div>`}
 function render(){
  if(!st.round){ $('#app').innerHTML=head()+`<div class="wrap"><div class="card"><h2>Waiting for the facilitator</h2><p class="muted">Your next task will appear here as soon as it is released.</p></div></div>`;return}
@@ -63,7 +77,7 @@ function render(){
  if(tab==='result'){
   const x=st.result;h+=x&&x.result?`<div class="card"><h2>${esc(x.headline||'')}</h2><div class="grid g3"><div><div class="muted small">Round score</div><div class="big">${x.result.total}</div></div><div><div class="muted small">Market consequence</div><div class="big ${x.result.consequence>=0?'ok':'bad'}">${x.result.consequence>0?'+':''}${x.result.consequence}%</div></div><div><div class="muted small">BZK</div><div class="big" style="color:var(--gold)">${x.result.after}</div></div></div><p class="muted">Decision ${x.scores.decision}/30 · AI leadership ${x.scores.ai}/20 · Live ${x.scores.live}/50</p>${x.feedback?`<h3>Feedback</h3><p>${esc(x.feedback)}</p>`:''}</div>`:`<div class="card"><p class="muted">Results appear here after the facilitator publishes the round.</p></div>`;
  }
- $('#app').innerHTML=h+'</div>';clock()}
+ $('#app').innerHTML=h+'</div>';clock();upShow();if(UP.files===null)upList()}
 function setTerm(k,v){const n=st.round.neg.issues.length;draft.terms=draft.terms||Array(n).fill(null);draft.terms[k]=v===''?null:+v}
 async function copyP(id){const a=st.round.avatars.find(x=>x.id===id);try{await navigator.clipboard.writeText(a.prompt)}catch(e){const t=document.createElement('textarea');t.value=a.prompt;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}$('#cp_'+id).textContent='Copied';setTimeout(()=>{const e=$('#cp_'+id);if(e)e.textContent=''},1800)}
 async function submitAll(){

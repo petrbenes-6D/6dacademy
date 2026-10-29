@@ -5,7 +5,7 @@ h1{font-size:34px;text-transform:uppercase}h2{font-size:22px}h3{font-size:17px;c
 a{color:var(--teal)}
 .wrap{max-width:1100px;margin:0 auto;padding:18px}
 .top{display:flex;align-items:center;gap:14px;padding:10px 22px;background:#fff;color:#1a1342;border-bottom:4px solid var(--teal);box-shadow:0 6px 24px #0008;position:sticky;top:0;z-index:5;min-height:64px}
-.top::before{content:'';flex:none;width:93px;height:43px;background:url(/logo.png) center/contain no-repeat;margin-right:6px;padding-right:16px;border-right:2px solid #e3e0f2;box-sizing:content-box}
+.top::before{content:'';flex:none;width:93px;height:43px;background:url(logo.png) center/contain no-repeat;margin-right:6px;padding-right:16px;border-right:2px solid #e3e0f2;box-sizing:content-box}
 .top b{font-family:Jost,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#1a1342}.top a{color:var(--purple);font-weight:600;text-decoration:none;margin-left:10px}.top .muted{color:#6a6490}.top .pill{background:var(--purple);color:#fff}
 .top.team-RED{border-bottom-color:var(--red)}.top.team-BLUE{border-bottom-color:var(--blue)}.top.team-GREY{border-bottom-color:var(--grey)}
 .sp{flex:1}
