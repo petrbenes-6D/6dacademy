@@ -5,7 +5,7 @@ const RUN=(QS.get('run')||'').toUpperCase();
 const COL={RED:'#e0475a',BLUE:'#4a8bf0',GREY:'#9aa3b5'},TEAMS=['RED','BLUE','GREY'];
 function qr(text){if(typeof qrcode==='undefined')return '';const q=qrcode(0,'M');q.addData(text);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true})}
 const mmss=ms=>{ms=Math.max(0,ms);const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
-let _clk;function clock(){clearInterval(_clk);const f=()=>document.querySelectorAll('[data-end]').forEach(e=>{const v=+e.dataset.end-Date.now();e.textContent=v>0?mmss(v):'00:00';e.classList.toggle('late',v<=0)});f();_clk=setInterval(f,500)}
+let _clk;function clock(){clearInterval(_clk);const f=()=>document.querySelectorAll('[data-end]').forEach(e=>{const v=e.dataset.left!==undefined&&e.dataset.left!==''?+e.dataset.left:+e.dataset.end-Date.now();e.textContent=v>0?mmss(v):'00:00';e.classList.toggle('late',v<=0)});f();_clk=setInterval(f,500)}
 
 /* ---- komunikace s jádrem hry ----
    Jedna adresa API. Na notebooku je to /api (server.js), na hostingu adresa Apps Scriptu z config.js.

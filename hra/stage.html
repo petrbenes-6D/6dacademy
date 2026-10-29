@@ -44,15 +44,15 @@ function render(){
  if(!r){h+=`<div class="sl" style="align-items:center;text-align:center"><div class="k">Future Human Leader</div><div class="h1">BeZak <span style="color:var(--teal)">Exchange</span></div><div class="sk">Aquatech LAB Game</div></div>`}
  else{const S=slides(r),i=Math.min(X.stage.step,S.length-1);h+=`<div class="sl">${S[i].h}</div><div class="dots">${S.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div>`;
   const nt=$('#nt');nt.innerHTML=(S[i].n||'<p class="muted">Bez poznámek.</p>');nt.classList.toggle('on',PRES&&notes)}
- if(PRES)h+=`<div class="pt"><span>Prezentační režim (publikum nevidí tuto lištu ani poznámky)</span><span class="sp" style="flex:1"></span>Časomíra: <input id="mn" type="number" value="10" min="1"> min <button class="btn" onclick="tstart()">Start</button><button class="btn alt" onclick="tadd(-5)">−5</button><button class="btn alt" onclick="tadd(-1)">−1</button><button class="btn alt" onclick="tadd(1)">+1</button><button class="btn alt" onclick="tadd(5)">+5</button><button class="btn alt" onclick="tclear()">Stop</button></div>`;
+ if(PRES)h+=`<div class="pt"><span>Prezentační režim (publikum nevidí tuto lištu ani poznámky)</span><span class="sp" style="flex:1"></span>Časomíra: <input id="mn" type="number" value="10" min="1"> min <button class="btn" onclick="tstart()">Start</button><button class="btn alt" onclick="tadd(-5)">−5</button><button class="btn alt" onclick="tadd(-1)">−1</button><button class="btn alt" onclick="tadd(1)">+1</button><button class="btn alt" onclick="tadd(5)">+5</button><button class="btn alt" onclick="tpause()">Pauza</button><button class="btn alt" onclick="tclear()">Reset</button></div>`;
  $('#st').innerHTML=h;
  const bd=$('#bd');bd.classList.toggle('on',!!X.stage.board);if(X.stage.board&&!$('#bf').src)$('#bf').src=`board.html?run=${RUN}&embed=1`;if(!X.stage.board)$('#bf').removeAttribute('src');
  tick()}
-function tick(){const e=$('#tm');if(!e)return;if(!X||!X.timer){e.classList.add('off');return}const v=X.timer.endsAt-Date.now();e.classList.remove('off');e.classList.toggle('late',v<=0);e.textContent=v>0?mmss(v):'00:00'}
+function tick(){const e=$('#tm');if(!e)return;if(!X||!X.timer){e.classList.add('off');return}const v=X.timer.paused?X.timer.left:X.timer.endsAt-Date.now();e.classList.remove('off');e.classList.toggle('late',v<=0);e.textContent=v>0?mmss(v):'00:00'}
 setInterval(tick,400);
 let pend=0,ver=null;async function load(){const n=await bx('/stage',{run:RUN,since:ver});if(n.unchanged||n.error)return;if(PRES&&pend>0&&X)n.stage=X.stage;ver=n.ver;X=n;render()}
 async function setStage(o){if(!PRES)return;Object.assign(X.stage,o);render();pend++;try{await api('/admin/stage',o)}finally{pend--}if(o.round!=null){ver=null;await load()}}
-const tstart=()=>api('/admin/timer',{op:'start',minutes:+$('#mn').value||5}),tadd=m=>api('/admin/timer',{op:'add',minutes:m}),tclear=()=>api('/admin/timer',{op:'clear'});
+const tstart=()=>api('/admin/timer',{op:'start',minutes:+$('#mn').value||5}),tadd=m=>api('/admin/timer',{op:'add',minutes:m}),tclear=()=>api('/admin/timer',{op:'clear'}),tpause=()=>api('/admin/timer',{op:'pause'});
 document.addEventListener('keydown',e=>{if(!PRES||!X)return;const t=e.target&&e.target.tagName;if(['INPUT','TEXTAREA'].includes(t))return;if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key,L=X.round?slides(X.round).length:0,s=X.stage.step;
  if(k==='ArrowRight'||k==='PageDown'||k===' '){e.preventDefault();if(X.round)setStage({step:Math.min(L-1,s+1)})}
  else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();if(X.round)setStage({step:Math.max(0,s-1)})}

@@ -12,7 +12,7 @@ async function load(){
  if(j.error||j.unchanged)return;
  ver=j.ver;st=j;
  if(draft.init!==(st.round&&st.round.id)){draft.init=st.round&&st.round.id;draft.option=st.mine?st.mine.decision.option:'';draft.rationale=st.mine?st.mine.decision.rationale:'';draft.artifact=st.mine?st.mine.artifact:'';draft.terms=st.mine&&st.mine.terms?st.mine.terms.slice():null;tab='brief'}
- const s=JSON.stringify([st.status,st.round&&st.round.id,st.round&&st.round.endsAt,st.board.teams.map(t=>t.bzk),st.name,st.ticker,st.folder,st.mine&&st.mine.submittedAt,st.result]);
+ const s=JSON.stringify([st.status,st.round&&st.round.id,st.round&&st.round.endsAt,st.round&&st.round.tleft,st.board.teams.map(t=>t.bzk),st.name,st.ticker,st.folder,st.mine&&st.mine.submittedAt,st.result]);
  if(s!==sig){sig=s;render()}}
 function head(){const me=st.board.teams.find(t=>t.team===st.team);return `<div class="top team-${st.team}"><b>${esc(st.name)}</b><span class="pill">${esc(st.ticker)}</span><span class="sp"></span><span class="muted small">BZK</span> <b style="font-size:22px;color:var(--gold)">${me.bzk.toFixed(2)}</b></div>`}
 const stTxt={open:'Round open',closed:'Submissions closed',evaluated:'Being evaluated',published:'Result published'};
@@ -36,7 +36,7 @@ function render(){
  if(!st.round){ $('#app').innerHTML=head()+`<div class="wrap"><div class="card"><h2>Waiting for the facilitator</h2><p class="muted">Your next task will appear here as soon as it is released.</p></div></div>`;return}
  const r=st.round,open=st.status==='open',neg=r.kind==='negotiation';
  const tabs=[['brief','Brief']];if(neg)tabs.push(['role','Your role']);tabs.push(['avatars','AI roles'],['submit','Submit'],['result','Result']);
- let h=head()+`<div class="wrap"><div class="pill ${st.status}">${stTxt[st.status]}</div> <span class="muted small">${esc(r.skill)}</span>${r.endsAt&&open?` <span class="timer"><span data-end="${r.endsAt}"></span></span>`:''}
+ let h=head()+`<div class="wrap"><div class="pill ${st.status}">${stTxt[st.status]}</div> <span class="muted small">${esc(r.skill)}</span>${r.endsAt&&open?` <span class="timer"><span data-end="${r.endsAt}" data-left="${r.tleft==null?'':r.tleft}"></span></span>`:''}
  <div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="tab='${k}';render()">${l}</button>`).join('')}</div>`;
  if(tab==='brief'){
   h+=`<div class="card paper"><h2>The BeZak Morning Herald</h2><div class="hl">${esc(r.newspaper.headline)}</div><p>${esc(r.newspaper.lead)}</p></div>
